@@ -107,18 +107,53 @@ RUN apt-get update \
 # or
 #    `Package "xxx" does not have REST xml available`
 # Please turn on proxy (The proxy IP may be docker host IP or others):
-RUN pear config-set http_proxy http://10.0.75.1:1080
+#RUN pear config-set http_proxy http://10.0.75.1:1080
 
-RUN pecl install redis-3.1.4 \
-    && docker-php-ext-enable redis \
-    && :\
-    && pecl install xdebug-2.5.5 \
-    && docker-php-ext-enable xdebug \
-    && :\
-    && apt-get install -y libmagickwand-dev \
-    && pecl install imagick-3.4.3 \
-    && docker-php-ext-enable imagick \
-    && :\
-    && apt-get install -y libmemcached-dev zlib1g-dev \
-    && pecl install memcached-2.2.0 \
-    && docker-php-ext-enable memcached
+#RUN pecl install redis-3.1.4 \
+#    && docker-php-ext-enable redis \
+#    && :\
+#    && pecl install xdebug-2.5.5 \
+#    && docker-php-ext-enable xdebug \
+#    && :\
+#    && apt-get install -y libmagickwand-dev \
+#    && pecl install imagick-3.4.3 \
+#    && docker-php-ext-enable imagick \
+#    && :\
+#    && apt-get install -y libmemcached-dev zlib1g-dev \
+#    && pecl install memcached-2.2.0 \
+#    && docker-php-ext-enable memcached
+
+COPY ./ext/xdebug-2.5.5.tgz /tmp/
+COPY ./ext/redis-3.1.4.tgz /tmp/
+COPY ./ext/imagick-3.4.3.tgz /tmp/
+COPY ./ext/memcached-2.2.0.tgz /tmp/
+
+RUN cd /tmp/ \
+        && tar -xf xdebug-2.5.5.tgz \
+        && rm xdebug-2.5.5.tgz \
+        && ( cd xdebug-2.5.5 && phpize && ./configure && make && make install ) \
+        && rm -r xdebug-2.5.5 \
+        && docker-php-ext-enable xdebug \
+        && :\
+        && cd /tmp/ \
+        && tar -xf redis-3.1.4.tgz \
+        && rm redis-3.1.4.tgz \
+        && ( cd redis-3.1.4 && phpize && ./configure && make && make install ) \
+        && rm -r redis-3.1.4 \
+        && docker-php-ext-enable redis \
+        && :\
+        && apt-get install -y libmagickwand-dev \
+        && cd /tmp/ \
+        && tar -xf imagick-3.4.3.tgz \
+        && rm imagick-3.4.3.tgz \
+        && ( cd imagick-3.4.3 && phpize && ./configure && make && make install ) \
+        && rm -r imagick-3.4.3 \
+        && docker-php-ext-enable imagick \
+        && :\
+        && apt-get install -y libmemcached-dev zlib1g-dev \
+        && cd /tmp/ \
+        && tar -xf memcached-2.2.0.tgz \
+        && rm memcached-2.2.0.tgz \
+        && ( cd memcached-2.2.0 && phpize && ./configure && make && make install ) \
+        && rm -r memcached-2.2.0 \
+        && docker-php-ext-enable memcached \
