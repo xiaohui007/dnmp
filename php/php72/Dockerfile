@@ -107,18 +107,36 @@ RUN apt-get update \
 # or
 #    `Package "xxx" does not have REST xml available`
 # Please turn on proxy (The proxy IP may be docker host IP or others):
-RUN pear config-set http_proxy http://10.0.75.1:1080
+#RUN pear config-set http_proxy http://10.0.75.1
 
-RUN pecl install redis-3.1.4 \
-    && docker-php-ext-enable redis \
-    && :\
-    && pecl install xdebug-2.6.0alpha1 \
-    && docker-php-ext-enable xdebug \
-    && :\
-    && apt-get install -y libmagickwand-dev \
-    && pecl install imagick-3.4.3 \
-    && docker-php-ext-enable imagick \
-    && :\
-    && apt-get install -y libmemcached-dev zlib1g-dev \
-    && pecl install memcached-3.0.4 \
-    && docker-php-ext-enable memcached
+COPY ../ext/xdebug-2.6.0alpha1.tgz /tmp/
+RUN cd /tmp/ \
+        && tar -xf xdebug-2.6.0alpha1.tgz \
+		&& rm xdebug-2.6.0alpha1.tgz \
+        && ( cd xdebug-2.6.0alpha1 && phpize && ./configure && make && make install ) \
+        && rm -r xdebug-2.6.0alpha1 \
+        && docker-php-ext-enable xdebug \
+
+COPY ../ext/imagick-3.4.3.tgz /tmp/
+RUN cd /tmp/ \
+        && tar -xf imagick-3.4.3.tgz \
+		&& rm imagick-3.4.3.tgz \
+        && ( cd imagick-3.4.3 && phpize && ./configure && make && make install ) \
+        && rm -r imagick-3.4.3 \
+        && docker-php-ext-enable imagick \
+
+COPY ../ext/memcached-3.0.4.tgz /tmp/
+RUN cd /tmp/ \
+        && tar -xf memcached-3.0.4.tgz \
+		&& rm memcached-3.0.4.tgz \
+        && ( cd memcached-3.0.4 && phpize && ./configure && make && make install ) \
+        && rm -r memcached-3.0.4 \
+        && docker-php-ext-enable memcached \
+
+COPY ../ext/redis-3.1.4.tgz /tmp/
+RUN cd /tmp/ \
+        && tar -xf redis-3.1.4.tgz \
+		&& rm redis-3.1.4.tgz \
+        && ( cd redis-3.1.4 && phpize && ./configure && make && make install ) \
+        && rm -r redis-3.1.4 \
+        && docker-php-ext-enable redis \
