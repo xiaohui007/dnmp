@@ -13,7 +13,8 @@ COPY ./sources.list.jessie /etc/apt/sources.list
 # 4. xml, xmlrpc, wddx require libxml2-dev and libxslt-dev.
 # 5. Line `&& :\` is just for better reading and do nothing.
 RUN apt-get update \
-    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libmcrypt-dev \
+    && docker-php-ext-install -j$(nproc) iconv mcrypt \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install gd \
     && :\
@@ -44,7 +45,7 @@ RUN apt-get update \
     && docker-php-ext-install sysvmsg \
     && docker-php-ext-install sysvsem \
     && docker-php-ext-install sysvshm \
-    && docker-php-ext-install opcache
+    && docker-php-ext-install opcache 
     #&& docker-php-ext-install pdo_firebird \
     #&& docker-php-ext-install pdo_dblib \
     #&& docker-php-ext-install pdo_oci \

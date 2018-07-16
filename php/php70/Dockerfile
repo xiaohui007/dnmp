@@ -13,7 +13,8 @@ COPY ./sources.list.stretch /etc/apt/sources.list
 # 4. xml, xmlrpc, wddx require libxml2-dev and libxslt-dev.
 # 5. Line `&& :\` is just for better reading and do nothing.
 RUN apt-get update \
-    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libmcrypt-dev \
+    && docker-php-ext-install -j$(nproc) iconv mcrypt \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install gd \
     && :\
@@ -117,6 +118,8 @@ COPY ./ext/xdebug-2.6.0.tgz /tmp/
 COPY ./ext/redis-3.1.4.tgz /tmp/
 COPY ./ext/imagick-3.4.3.tgz /tmp/
 COPY ./ext/memcached-3.0.4.tgz /tmp/
+COPY ./ext/mcrypt-1.0.1.tgz /tmp/
+
 
 RUN cd /tmp/ \
         && tar -xf xdebug-2.6.0.tgz \
@@ -147,3 +150,11 @@ RUN cd /tmp/ \
         && ( cd memcached-3.0.4 && phpize && ./configure && make && make install ) \
         && rm -r memcached-3.0.4 \
         && docker-php-ext-enable memcached \
+        && :\
+        && apt-get install -y libmcrypt-dev \
+        && cd /tmp/ \
+        && tar -zxvf mcrypt-1.0.1.tgz \
+        && rm mcrypt-1.0.1.tgz \
+        && ( cd mcrypt-1.0.1 && phpize && ./configure && make && make install ) \
+        && rm -r mcrypt-1.0.1 \
+        && docker-php-ext-enable mcrypt \
